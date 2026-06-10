@@ -21,6 +21,9 @@ jobs:
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           passphrase: ${{ secrets.VPS_PASSPHRASE }}
           script: |
+            eval "$(ssh-agent -s)"
+            ssh-add /root/.ssh/duynguyenxdev
+
             # Load Node/NVM environment (Crucial for non-interactive SSH shells)
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
