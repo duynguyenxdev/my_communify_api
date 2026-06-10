@@ -8,7 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
     env:
       PROJECT_DIR: /root/projects/my_communify_api
       PM2_PROCESS: my_communify_backend
