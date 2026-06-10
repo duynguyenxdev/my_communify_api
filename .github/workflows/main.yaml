@@ -10,40 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-      BUILD_DIR: /root/build/my_communify_api
+      PROJECT_DIR: /root/projects/my_communify_api
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build
-        run: |
-          echo "PORT=${{ vars.PORT }}" >> .env
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
-          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "JWT_EXPIRES_IN=${{ vars.JWT_EXPIRES_IN }}" >> .env
-          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
-
-          npm run build
-
-      - name: Copy build artifact to VPS
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_PRIVATE_KEY }}
-          passphrase: ${{ secrets.VPS_PASSPHRASE }}
-          source: 'dist'
-          target: '${{ env.BUILD_DIR }}'
-
-      - name: Start api
+      - name: Build and Deploy to VPS
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -55,6 +25,10 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-            cd ${{ env.BUILD_DIR }}
+            cd ${{ env.PROJECT_DIR }}
+            git reset --hard
+            git pull origin ${{ github.ref_name }}
+            npm install
+            npm run build
             pm2 start dist/src/main.js --name "my_communify_backend"
             pm2 save
