@@ -1,0 +1,15 @@
+services:
+  postgresql:
+    image: postgres:alpine
+    container_name: local_postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: my_communify
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+volumes:
+  pgdata:
