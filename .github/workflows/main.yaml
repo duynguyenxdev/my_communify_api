@@ -9,6 +9,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
+    env:
+      BUILD_DIR: /root/build/my_communify_api
 
     steps:
       - name: Checkout code
@@ -31,7 +33,7 @@ jobs:
 
           npm run build
 
-      - name: Copy dist to VPS
+      - name: Copy build artifact to VPS
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -39,4 +41,16 @@ jobs:
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           passphrase: ${{ secrets.VPS_PASSPHRASE }}
           source: 'dist'
-          target: '/root/build/my_communify_api'
+          target: '${{ env.BUILD_DIR }}'
+
+      - name: Start api
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          passphrase: ${{ secrets.VPS_PASSPHRASE }}
+          script: |
+            cd ${{ env.BUILD_DIR }}
+            pm2 start dist/src/main.js --name "my_communify_backend"
+            pm2 save
