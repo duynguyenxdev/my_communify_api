@@ -51,6 +51,8 @@ jobs:
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           passphrase: ${{ secrets.VPS_PASSPHRASE }}
           script: |
-            cd ${{ env.BUILD_DIR }}
-            pm2 start dist/src/main.js --name "my_communify_backend"
-            pm2 save
+            bash -lc '
+                cd ${{ env.BUILD_DIR }}
+                pm2 start dist/src/main.js --name "my_communify_backend"
+                pm2 save
+            '
