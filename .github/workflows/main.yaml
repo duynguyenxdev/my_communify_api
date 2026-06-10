@@ -11,6 +11,7 @@ jobs:
     environment: production
     env:
       BUILD_DIR: /root/build/my_communify_api
+      PM2: /root/.nvm/versions/node/v24.16.0/bin/pm2
 
     steps:
       - name: Checkout code
@@ -51,8 +52,6 @@ jobs:
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           passphrase: ${{ secrets.VPS_PASSPHRASE }}
           script: |
-            bash -lc '
-                cd ${{ env.BUILD_DIR }}
-                pm2 start dist/src/main.js --name "my_communify_backend"
-                pm2 save
-            '
+            cd ${{ env.BUILD_DIR }}
+            ${{ env.PM2 }} start dist/src/main.js --name "my_communify_backend"
+            ${{ env.PM2 }} save
